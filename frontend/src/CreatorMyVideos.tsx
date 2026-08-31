@@ -203,7 +203,7 @@ function Sidebar({ onLogout, onNavigate, userName }: { onLogout?: () => void, on
           { name: 'Dashboard', icon: Home, view: 'dashboard' },
           { name: 'My Videos', icon: PlaySquare, active: true, view: 'creator_my_videos' },
           { name: 'Add Video', icon: PlusSquare, view: 'creator_add_video' },
-          { name: 'Analytics', icon: BarChart2, view: 'creator_analytics' },
+
           { name: 'Promotions', icon: Star, view: 'creator_promotions' },
           { name: 'Learner Engagement', icon: Users, view: 'creator_learners' },
           { name: 'My Profile', icon: User, view: 'creator_profile' },
