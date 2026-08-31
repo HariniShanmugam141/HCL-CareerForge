@@ -5,9 +5,11 @@ import Onboarding from './Onboarding';
 import CreatorOnboarding from './CreatorOnboarding';
 import CreatorDashboard from './CreatorDashboard';
 import CreatorMyVideos from './CreatorMyVideos';
+import PromotionsPage from './PromotionsPage';
+import AdminDashboard from './AdminDashboard';
 
 export default function App() {
-  const [view, setView] = useState<'auth' | 'onboarding' | 'dashboard' | 'creator_my_videos'>('auth');
+  const [view, setView] = useState<'auth' | 'onboarding' | 'dashboard' | 'creator_my_videos' | 'promotions' | 'admin'>('admin');
   const [userName, setUserName] = useState('Arjun Raj'); // Default for mockup
   const [isNewUser, setIsNewUser] = useState(false);
   const [role, setRole] = useState('Learner');
@@ -20,7 +22,7 @@ export default function App() {
       localStorage.removeItem('careerforge_onboarding');
       setView('onboarding');
     } else {
-      setView('dashboard');
+      setView(userRole === 'Admin' ? 'admin' : 'dashboard');
     }
   };
 
@@ -29,7 +31,7 @@ export default function App() {
   };
 
   const handleNavigate = (newView: string) => {
-    if (newView === 'dashboard' || newView === 'creator_my_videos') {
+    if (['dashboard', 'creator_my_videos', 'promotions', 'admin'].includes(newView)) {
       setView(newView as any);
     }
   };
@@ -50,6 +52,14 @@ export default function App() {
 
   if (view === 'creator_my_videos') {
     return <CreatorMyVideos onLogout={handleLogout} onNavigate={handleNavigate} userName={userName} />;
+  }
+
+  if (view === 'promotions') {
+    return <PromotionsPage />;
+  }
+
+  if (view === 'admin') {
+    return <AdminDashboard />;
   }
 
   return <Auth onLogin={handleLogin} />;
