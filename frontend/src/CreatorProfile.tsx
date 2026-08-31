@@ -3,7 +3,7 @@ import {
   Home, PlaySquare, PlusSquare, BarChart2, Star, Users, User, Settings, LogOut,
   Bell, ChevronDown, ChevronRight, Video, Eye, MousePointerClick, Heart,
   MapPin, Link as LinkIcon, Mail, Calendar, Edit2, Play, Camera,
-  CheckCircle2, Circle, Lightbulb, Youtube, Linkedin, Twitter, Github, Check
+  Lightbulb, Check, ExternalLink, Code2, MessageSquare
 } from 'lucide-react';
 
 // --- Sidebar ---
@@ -297,10 +297,10 @@ function RecentVideos() {
 // --- Social Links ---
 function SocialLinks() {
   const links = [
-    { name: 'YouTube', url: 'youtube.com/@arjunraj', icon: Youtube },
-    { name: 'LinkedIn', url: 'linkedin.com/in/arjunraj', icon: Linkedin },
-    { name: 'X', url: 'x.com/arjunraj', icon: Twitter },
-    { name: 'GitHub', url: 'github.com/arjunraj', icon: Github },
+    { name: 'YouTube', url: 'youtube.com/@arjunraj', icon: ExternalLink, color: 'text-red-500' },
+    { name: 'LinkedIn', url: 'linkedin.com/in/arjunraj', icon: ExternalLink, color: 'text-blue-600' },
+    { name: 'X', url: 'x.com/arjunraj', icon: ExternalLink, color: 'text-gray-800' },
+    { name: 'GitHub', url: 'github.com/arjunraj', icon: Code2, color: 'text-gray-800' },
   ];
 
   return (
@@ -318,7 +318,7 @@ function SocialLinks() {
       <div className="flex flex-wrap gap-4">
         {links.map((l, i) => (
           <div key={i} className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg shadow-sm hover:border-gray-300 transition-colors cursor-pointer bg-gray-50/50">
-            <l.icon size={16} className="text-[#10154A]" />
+            <l.icon size={16} className={l.color || 'text-[#10154A]'} />
             <div>
               <div className="text-[9px] font-bold text-gray-400 leading-tight">{l.name}</div>
               <div className="text-[11px] font-bold text-[#10154A]">{l.url}</div>
