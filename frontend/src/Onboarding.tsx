@@ -20,6 +20,8 @@ import {
   Info
 } from 'lucide-react';
 import Confetti from 'react-confetti';
+import { auth, db } from './firebase';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 // --- TYPES ---
 type CareerInterest = 'Software Development' | 'AI / ML' | 'Data Science' | 'Cybersecurity' | '';
@@ -84,6 +86,31 @@ export default function Onboarding({ onComplete }: { onComplete?: () => void }) 
       setTimeout(() => {
         setIsGenerating(false);
       }, 2500);
+    }
+  };
+
+  const handleComplete = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        await updateDoc(doc(db, 'users', user.uid), {
+          careerInterest: state.careerInterest,
+          existingSkills: state.existingSkills,
+          experienceLevel: state.experienceLevel,
+          learningStyles: state.learningStyles,
+          timeline: state.timeline,
+          onboardingCompleted: true,
+          onboardingCompletedAt: serverTimestamp(),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save learner onboarding to Firestore:', err);
+    } finally {
+      if (onComplete) {
+        onComplete();
+      } else {
+        window.location.reload();
+      }
     }
   };
 
@@ -168,13 +195,7 @@ export default function Onboarding({ onComplete }: { onComplete?: () => void }) 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <p className="text-gray-900 font-medium mb-6">Your roadmap is ready.</p>
               <button 
-                onClick={() => {
-                  if (onComplete) {
-                    onComplete();
-                  } else {
-                    window.location.reload();
-                  }
-                }}
+                onClick={handleComplete}
                 className="w-full bg-[#6225E6] hover:bg-[#501ac4] text-white py-3.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
               >
                 Enter My CareerForge Dashboard <ChevronRight size={18} />

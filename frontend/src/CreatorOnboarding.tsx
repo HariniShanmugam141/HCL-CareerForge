@@ -5,6 +5,8 @@ import {
   Info, Users, User, Map, BarChart, Trophy, DollarSign, UploadCloud, Play, Target
 } from 'lucide-react';
 import Confetti from 'react-confetti';
+import { auth, db } from './firebase';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 type CreatorOnboardingState = {
   step: number;
@@ -72,6 +74,28 @@ export default function CreatorOnboarding({ onComplete, initialName = '' }: { on
     if (state.step === 3) return state.youtubeUrl.trim() !== '';
     if (state.step === 4) return state.goals.length > 0;
     return true;
+  };
+
+  const handleComplete = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        await updateDoc(doc(db, 'users', user.uid), {
+          name: state.fullName || user.displayName || '',
+          email: state.email || user.email || '',
+          creatorType: state.creatorType,
+          expertise: state.expertise,
+          youtubeUrl: state.youtubeUrl,
+          goals: state.goals,
+          onboardingCompleted: true,
+          onboardingCompletedAt: serverTimestamp(),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save creator onboarding to Firestore:', err);
+    } finally {
+      onComplete();
+    }
   };
 
   return (
@@ -401,7 +425,7 @@ export default function CreatorOnboarding({ onComplete, initialName = '' }: { on
                         Review Profile
                       </button>
                       <button 
-                        onClick={onComplete}
+                        onClick={handleComplete}
                         className="px-6 py-3 bg-[#6225E6] text-white rounded-xl font-semibold hover:bg-[#501ac4] transition-colors shadow-sm flex items-center justify-center gap-2 text-sm flex-[2]"
                       >
                         Go to Creator Dashboard <ChevronRight size={16} />
