@@ -124,10 +124,12 @@ const LEADERBOARD = [
 
 export default function Dashboard({ 
   onLogout, 
+  onNavigate,
   userName = 'Arjun Raj', 
   isNewUser = false 
 }: { 
-  onLogout?: () => void, 
+  onLogout?: () => void,
+  onNavigate?: (view: string) => void,
   userName?: string, 
   isNewUser?: boolean 
 }) {
@@ -195,20 +197,24 @@ export default function Dashboard({
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-6 custom-scrollbar">
           {[
-            { name: 'Dashboard', icon: Home, active: true },
-            { name: 'Roadmap', icon: Map },
-            { name: 'Practice', icon: Code },
-            { name: 'Progress', icon: BarChart },
-            { name: 'Achievements', icon: Trophy },
-            { name: 'Leaderboard', icon: Users },
-            { name: 'Rewards', icon: Gift },
-            { name: 'Reminders', icon: Bell },
-            { name: 'Profile', icon: User },
-            { name: 'Settings', icon: Settings },
+            { name: 'Dashboard', icon: Home, active: true, view: 'dashboard' },
+            { name: 'Roadmap', icon: Map, view: 'roadmap' },
+            { name: 'Practice', icon: Code, view: 'practice' },
+            { name: 'Progress', icon: BarChart, view: 'progress' },
+            { name: 'Achievements', icon: Trophy, view: 'achievements' },
+            { name: 'Leaderboard', icon: Users, view: 'leaderboard' },
+            { name: 'Rewards', icon: Gift, view: 'rewards' },
+            { name: 'Reminders', icon: Bell, view: 'reminders' },
+            { name: 'Profile', icon: User, view: 'profile' },
+            { name: 'Settings', icon: Settings, view: 'settings' },
           ].map(item => (
             <a 
               key={item.name} 
               href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                if (onNavigate && item.view) onNavigate(item.view);
+              }}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors
                 ${item.active 
                   ? 'bg-[#f4effd] text-[#6225E6]' 
@@ -493,7 +499,9 @@ export default function Dashboard({
                                     <button className="flex-1 sm:flex-none px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-[#f4effd] hover:text-[#6225E6] hover:border-[#e7defa] transition-colors flex items-center justify-center gap-1.5">
                                       <PlayCircle size={14} /> Watch
                                     </button>
-                                    <button className="flex-1 sm:flex-none px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-[#f4effd] hover:text-[#6225E6] hover:border-[#e7defa] transition-colors flex items-center justify-center gap-1.5">
+                                    <button 
+                                      onClick={() => onNavigate && onNavigate('practice')}
+                                      className="flex-1 sm:flex-none px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-[#f4effd] hover:text-[#6225E6] hover:border-[#e7defa] transition-colors flex items-center justify-center gap-1.5">
                                       <Code size={14} /> Practise
                                     </button>
                                     <button 

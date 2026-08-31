@@ -7,10 +7,12 @@ import CreatorDashboard from './CreatorDashboard';
 import CreatorMyVideos from './CreatorMyVideos';
 import PromotionsPage from './PromotionsPage';
 import AdminDashboard from './AdminDashboard';
+import PracticePage from './PracticePage';
+import ProgressPage from './ProgressPage';
 
 export default function App() {
-  const [view, setView] = useState<'auth' | 'onboarding' | 'dashboard' | 'creator_my_videos' | 'promotions' | 'admin'>('admin');
-  const [userName, setUserName] = useState('Arjun Raj'); // Default for mockup
+  const [view, setView] = useState<'auth' | 'onboarding' | 'dashboard' | 'creator_my_videos' | 'promotions' | 'admin' | 'practice' | 'progress'>('dashboard');
+  const [userName, setUserName] = useState('Bhavya Shree D'); // Default for mockup
   const [isNewUser, setIsNewUser] = useState(false);
   const [role, setRole] = useState('Learner');
 
@@ -31,7 +33,7 @@ export default function App() {
   };
 
   const handleNavigate = (newView: string) => {
-    if (['dashboard', 'creator_my_videos', 'promotions', 'admin'].includes(newView)) {
+    if (['dashboard', 'creator_my_videos', 'promotions', 'admin', 'practice', 'progress'].includes(newView)) {
       setView(newView as any);
     }
   };
@@ -47,7 +49,15 @@ export default function App() {
     if (role === 'Creator') {
       return <CreatorDashboard onLogout={handleLogout} onNavigate={handleNavigate} userName={userName} />;
     }
-    return <Dashboard onLogout={handleLogout} userName={userName} isNewUser={isNewUser} />;
+    return <Dashboard onLogout={handleLogout} onNavigate={handleNavigate} userName={userName} isNewUser={isNewUser} />;
+  }
+
+  if (view === 'practice') {
+    return <PracticePage onLogout={handleLogout} onNavigate={handleNavigate} userName={userName} />;
+  }
+
+  if (view === 'progress') {
+    return <ProgressPage onLogout={handleLogout} onNavigate={handleNavigate} userName={userName} />;
   }
 
   if (view === 'creator_my_videos') {
