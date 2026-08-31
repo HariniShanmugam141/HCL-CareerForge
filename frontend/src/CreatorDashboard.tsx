@@ -59,10 +59,10 @@ const APPROVAL_WORKFLOW = [
 
 // --- COMPONENTS ---
 
-export default function CreatorDashboard({ onLogout, userName = 'Arjun Raj' }: { onLogout?: () => void, userName?: string }) {
+export default function CreatorDashboard({ onLogout, onNavigate, userName = 'Arjun Raj' }: { onLogout?: () => void, onNavigate?: (view: string) => void, userName?: string }) {
   return (
     <div className="min-h-screen bg-[#F8F9FB] flex font-sans text-gray-900 overflow-hidden">
-      <Sidebar onLogout={onLogout} userName={userName} />
+      <Sidebar onLogout={onLogout} onNavigate={onNavigate} userName={userName} />
       
       <main className="flex-1 h-screen overflow-y-auto custom-scrollbar relative pb-12">
         <Header userName={userName} />
@@ -94,7 +94,7 @@ export default function CreatorDashboard({ onLogout, userName = 'Arjun Raj' }: {
   );
 }
 
-function Sidebar({ onLogout, userName }: { onLogout?: () => void, userName: string }) {
+function Sidebar({ onLogout, onNavigate, userName }: { onLogout?: () => void, onNavigate?: (view: string) => void, userName: string }) {
   const initials = userName.substring(0, 2).toUpperCase();
 
   return (
@@ -110,18 +110,19 @@ function Sidebar({ onLogout, userName }: { onLogout?: () => void, userName: stri
 
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
         {[
-          { name: 'Dashboard', icon: Home, active: true },
-          { name: 'My Videos', icon: PlaySquare },
-          { name: 'Add Video', icon: PlusSquare },
-          { name: 'Analytics', icon: BarChart2 },
-          { name: 'Promotions', icon: Star },
-          { name: 'Learner Engagement', icon: Users },
-          { name: 'My Profile', icon: User },
-          { name: 'Settings', icon: Settings },
+          { name: 'Dashboard', icon: Home, active: true, view: 'dashboard' },
+          { name: 'My Videos', icon: PlaySquare, view: 'creator_my_videos' },
+          { name: 'Add Video', icon: PlusSquare, view: 'creator_add_video' },
+          { name: 'Analytics', icon: BarChart2, view: 'creator_analytics' },
+          { name: 'Promotions', icon: Star, view: 'creator_promotions' },
+          { name: 'Learner Engagement', icon: Users, view: 'creator_learners' },
+          { name: 'My Profile', icon: User, view: 'creator_profile' },
+          { name: 'Settings', icon: Settings, view: 'creator_settings' },
         ].map(item => (
           <a 
             key={item.name} 
             href="#" 
+            onClick={(e) => { e.preventDefault(); if (item.view && onNavigate) onNavigate(item.view); }}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors
               ${item.active 
                 ? 'bg-[#6225E6] text-white shadow-sm' 
