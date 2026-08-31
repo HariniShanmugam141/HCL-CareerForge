@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, ShieldCheck, ChevronRight, GraduationCap, MonitorPlay, ShieldAlert, UserPlus, LogIn, Loader2 } from 'lucide-react';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -9,6 +9,7 @@ import {
   updateProfile,
   getAdditionalUserInfo
 } from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function Auth({ onLogin }: { onLogin: (isNewUser: boolean, userName: string, role: string) => void }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -29,23 +30,41 @@ export default function Auth({ onLogin }: { onLogin: (isNewUser: boolean, userNa
     setLoading(true);
 
     try {
-      let isNew = false;
-      let uName = fullName;
       if (isSignUp) {
+        // --- SIGN UP ---
         if (password !== confirmPassword) {
-          throw new Error("Passwords do not match");
+          throw new Error('Passwords do not match');
         }
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        if (fullName) {
-          await updateProfile(userCredential.user, { displayName: fullName });
-        }
-        isNew = true;
-        uName = fullName || email.split('@')[0];
+        const user = userCredential.user;
+        const uName = fullName || email.split('@')[0];
+
+        // Update Firebase Auth display name
+        await updateProfile(user, { displayName: uName });
+
+        // Save user profile + role to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name: uName,
+          email: user.email,
+          role: selectedRole,
+          createdAt: serverTimestamp(),
+        });
+
+        onLogin(true, uName, selectedRole);
+
       } else {
+        // --- SIGN IN ---
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        uName = userCredential.user.displayName || email.split('@')[0];
+        const user = userCredential.user;
+        const uName = user.displayName || email.split('@')[0];
+
+        // Read role from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : selectedRole;
+
+        onLogin(false, uName, role);
       }
-      onLogin(isNew, uName, selectedRole);
     } catch (err: any) {
       setError(err.message.replace('Firebase: ', ''));
     } finally {
@@ -59,14 +78,26 @@ export default function Auth({ onLogin }: { onLogin: (isNewUser: boolean, userNa
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
       const details = getAdditionalUserInfo(userCredential);
-      
-      // If Firebase says it's a new user, OR if the user is explicitly on the "Sign Up" tab, treat as new
-      const isNew = details?.isNewUser || isSignUp;
-      
-      const uName = userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'Learner';
-      
-      onLogin(isNew, uName, selectedRole);
+      const isNew = details?.isNewUser || false;
+      const uName = user.displayName || user.email?.split('@')[0] || 'Learner';
+
+      if (isNew) {
+        // New Google user — save their profile + role to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name: uName,
+          email: user.email,
+          role: selectedRole,
+          createdAt: serverTimestamp(),
+        });
+        onLogin(true, uName, selectedRole);
+      } else {
+        // Existing Google user — read their role from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : selectedRole;
+        onLogin(false, uName, role);
+      }
     } catch (err: any) {
       setError(err.message.replace('Firebase: ', ''));
     } finally {
