@@ -3,9 +3,11 @@ import {
   Rocket, Home, Map, Code, BarChart, Trophy, Users, Gift, Bell, User, Settings,
   Flame, Star, Coins, Shield, Code2, Braces, Database, Server, Network,
   PlayCircle, CheckCircle, ChevronDown, ChevronRight, ChevronUp, Check, Lock,
-  MoreHorizontal, LogOut
+  MoreHorizontal, LogOut, Loader2
 } from 'lucide-react';
 import Confetti from 'react-confetti';
+import { auth, db } from './firebase';
+import { doc, getDoc, collection, getDocs, query, limit } from 'firebase/firestore';
 
 // --- TYPES & MOCK DATA ---
 type Milestone = {
@@ -133,7 +135,6 @@ export default function Dashboard({
   userName?: string, 
   isNewUser?: boolean 
 }) {
-  // If new user, create a fresh roadmap state
   const initialPhases = isNewUser ? INITIAL_PHASES.map(p => {
     if (p.id === 1) {
       // Phase 1 is in progress
@@ -151,6 +152,28 @@ export default function Dashboard({
   const [stats, setStats] = useState(isNewUser ? { xp: 0, coins: 0, badges: 0, streak: 1 } : { xp: 2450, coins: 180, badges: 4, streak: 12 });
   const [showXPAnimation, setShowXPAnimation] = useState(false);
   const [addedXP, setAddedXP] = useState(0);
+  const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const docSnap = await getDoc(doc(db, 'users', user.uid));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUserData(data);
+            if (data.stats) {
+              setStats(data.stats);
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching user data:", e);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleCompleteMilestone = (phaseId: number, milestoneId: number) => {
     setPhases(prevPhases => {
@@ -238,10 +261,10 @@ export default function Dashboard({
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-[#f4effd] text-[#6225E6] flex items-center justify-center font-bold">
-                {userName.substring(0, 2).toUpperCase()}
+                {(userData?.name || userName).substring(0, 2).toUpperCase()}
               </div>
               <div>
-                <div className="font-bold text-sm truncate max-w-[120px]" title={userName}>{userName}</div>
+                <div className="font-bold text-sm truncate max-w-[120px]" title={userData?.name || userName}>{userData?.name || userName}</div>
                 <div className="text-xs text-gray-500">{isNewUser ? 'Level 1 Learner' : 'Level 12 Learner'}</div>
               </div>
               <div className="ml-auto">
