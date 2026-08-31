@@ -6,10 +6,10 @@ import {
   Crown, UserPlus, FilePlus, Megaphone
 } from 'lucide-react';
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ onLogout }: { onLogout?: () => void }) {
   return (
     <div className="min-h-screen bg-[#FAFAFC] flex font-sans text-[#111827] overflow-hidden">
-      <Sidebar />
+      <Sidebar onLogout={onLogout} />
       <main className="flex-1 h-screen overflow-y-auto custom-scrollbar flex flex-col">
         <Header />
         <div className="px-8 md:px-10 py-8 max-w-[1600px] mx-auto w-full flex-1">
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
   );
 }
 
-function Sidebar() {
+function Sidebar({ onLogout }: { onLogout?: () => void }) {
   return (
     <aside className="w-[260px] bg-white border-r border-[#EAEAEA] hidden lg:flex flex-col h-screen sticky top-0 shrink-0 z-20">
       <div className="p-6 pb-2">
@@ -64,7 +64,10 @@ function Sidebar() {
           </p>
         </div>
 
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-red-500 hover:bg-red-50 transition-colors text-[13px]">
+        <button 
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-red-500 hover:bg-red-50 transition-colors text-[13px]"
+        >
           <LogOut size={18} />
           Logout
         </button>

@@ -59,7 +59,7 @@ export default function App() {
   }
 
   if (view === 'admin') {
-    return <AdminDashboard />;
+    return <AdminDashboard onLogout={handleLogout} />;
   }
 
   return <Auth onLogin={handleLogin} />;
